@@ -1,0 +1,6 @@
+---
+- name: Install openmrs
+  become: yes
+  hosts: all
+  roles:
+    - openmrs

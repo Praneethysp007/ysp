@@ -1,0 +1,13 @@
+---
+- name: extracting tomcat
+  ansible.builtin.unarchive:
+    src: /home/devops/apache-tomcat-9.0.75.tar.gz
+    dest: /opt/tomcat/
+    remote_src: yes
+- name: change ownership
+  ansible.builtin.file:
+    path: /opt/tomcat
+    state: directory
+    recurse: yes
+    owner: tomcat
+    group: tomcat

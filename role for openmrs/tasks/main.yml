@@ -1,0 +1,54 @@
+---
+- name: install java 11
+  ansible.builtin.apt:
+        name: openjdk-11-jdk
+        state: present
+    - name: install zip
+      ansible.builtin.package:
+        name: zip
+        state: present
+    - name: create user
+      ansible.builtin.user:
+        name: tomcat
+        state: present
+        create_home: yes
+        home: /opt/tomcat
+        shell: /bin/false
+    - name: create group
+      ansible.builtin.group:
+        name: tomcat
+        state: present
+    - name: downloding tomcat
+      ansible.builtin.get_url:
+        url: https://downloads.apache.org/tomcat/tomcat-9/v9.0.76/bin/apache-tomcat-9.0.76.tar.gz
+        dest: /home/devops/
+      notify:
+        - extracting tomcat
+    - name: Create a symbolic link
+      ansible.builtin.file:
+        src: /opt/tomcat/apache-tomcat-9.0.76
+        dest: /opt/tomcat/latest
+        owner: tomcat
+        group: tomcat
+        state: link
+        force: yes
+      notify:
+        - change ownership
+    - name: shell
+      ansible.builtin.shell:
+        cmd: sudo sh -c 'chmod +x /opt/tomcat/latest/bin/*.sh'
+    - name: creating servicefile
+      ansible.builtin.systemd:
+        name: tomcat.service
+        state: restarted
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /var/lib/OpenMRS
+        state: directory
+        recurse: yes
+        owner: tomcat
+        group: tomcat
+    - name: download openmrs
+      ansible.builtin.get_url:
+        url: https://sourceforge.net/projects/openmrs/files/releases/OpenMRS_Platform_2.5.7/openmrs.war
+        dest: /opt/tomcat/apache-tomcat-9.0.75/webapps
